@@ -52,7 +52,7 @@ class TemplateRenderer
                 '<li><a href="#file-%s" title="%s">%s</a></li>',
                 $fileData['index'],
                 $filename,
-                htmlspecialchars($shortName, ENT_QUOTES, 'UTF-8')
+                htmlspecialchars($shortName, ENT_QUOTES, 'UTF-8'),
             );
         }
 
@@ -124,7 +124,7 @@ class TemplateRenderer
                 $html .= sprintf(
                     '<div class="diff-removed"><span class="line-num">%s</span>%s</div>',
                     $lineNumber,
-                    $escaped
+                    $escaped,
                 );
             } elseif (str_starts_with($line, '+')) {
                 $html .= sprintf('<div class="diff-added"><span class="line-num">+</span>%s</div>', $escaped);
@@ -133,7 +133,7 @@ class TemplateRenderer
                 $html .= sprintf(
                     '<div class="diff-context"><span class="line-num">%s</span>%s</div>',
                     $lineNumber,
-                    $escaped
+                    $escaped,
                 );
             }
         }
@@ -154,12 +154,12 @@ class TemplateRenderer
 
     private function loadFragment(string $fragmentName): string
     {
-        $fragmentsDir = dirname($this->templatePath).DIRECTORY_SEPARATOR.'fragments';
-        $fragmentPath = $fragmentsDir.DIRECTORY_SEPARATOR.$fragmentName.'.html';
+        $fragmentsDir = dirname($this->templatePath) . DIRECTORY_SEPARATOR . 'fragments';
+        $fragmentPath = $fragmentsDir . DIRECTORY_SEPARATOR . $fragmentName . '.html';
 
         if (! file_exists($fragmentPath)) {
             throw new RuntimeException(
-                sprintf('Template fragment not found: %s', $fragmentPath)
+                sprintf('Template fragment not found: %s', $fragmentPath),
             );
         }
 

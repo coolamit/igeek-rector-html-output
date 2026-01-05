@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Igeek\RectorHtmlOutput;
 
-use Rector\ValueObject\Reporting\FileDiff;
 use Igeek\RectorHtmlOutput\Config\HtmlOutputConfig;
 use Igeek\RectorHtmlOutput\Template\TemplateRenderer;
 use Igeek\RectorHtmlOutput\ValueObject\ReportData;
 use Rector\ChangesReporting\Contract\Output\OutputFormatterInterface;
 use Rector\ValueObject\Configuration;
 use Rector\ValueObject\ProcessResult;
+use Rector\ValueObject\Reporting\FileDiff;
 use RuntimeException;
 
 /**
@@ -52,14 +52,14 @@ class HtmlOutputFormatter implements OutputFormatterInterface
 
         if ($bytesWritten === false) {
             throw new RuntimeException(
-                sprintf('Failed to write HTML report to: %s', $outputPath)
+                sprintf('Failed to write HTML report to: %s', $outputPath),
             );
         }
 
-        echo sprintf('HTML report generated: %s', $outputPath).PHP_EOL;
-        echo sprintf('  Files changed: %d', count($fileDiffs)).PHP_EOL;
-        echo sprintf('  Lines added: +%d', $reportData->getTotalLinesAdded()).PHP_EOL;
-        echo sprintf('  Lines removed: -%d', $reportData->getTotalLinesRemoved()).PHP_EOL;
+        echo sprintf('HTML report generated: %s', $outputPath) . PHP_EOL;
+        echo sprintf('  Files changed: %d', count($fileDiffs)) . PHP_EOL;
+        echo sprintf('  Lines added: +%d', $reportData->getTotalLinesAdded()) . PHP_EOL;
+        echo sprintf('  Lines removed: -%d', $reportData->getTotalLinesRemoved()) . PHP_EOL;
     }
 
     /**
@@ -99,7 +99,7 @@ class HtmlOutputFormatter implements OutputFormatterInterface
             $filename .= '.html';
         }
 
-        $fullPath = $outputDir.DIRECTORY_SEPARATOR.$filename;
+        $fullPath = $outputDir . DIRECTORY_SEPARATOR . $filename;
 
         // Auto-increment if file exists and config allows
         if ($this->config->shouldAutoIncrementFilename() && file_exists($fullPath)) {
@@ -109,11 +109,11 @@ class HtmlOutputFormatter implements OutputFormatterInterface
 
             do {
                 $filename = sprintf('%s-%d.html', $basename, $counter);
-                $fullPath = $outputDir.DIRECTORY_SEPARATOR.$filename;
+                $fullPath = $outputDir . DIRECTORY_SEPARATOR . $filename;
 
                 if ($counter++ > $maxAttempts) {
                     throw new RuntimeException(
-                        sprintf('Too many report files exist in %s (max: %d)', $outputDir, $maxAttempts)
+                        sprintf('Too many report files exist in %s (max: %d)', $outputDir, $maxAttempts),
                     );
                 }
             } while (file_exists($fullPath));

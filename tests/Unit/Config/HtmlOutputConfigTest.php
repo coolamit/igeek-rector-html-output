@@ -15,7 +15,7 @@ final class HtmlOutputConfigTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir().'/rector-test-'.uniqid();
+        $this->tempDir = sys_get_temp_dir() . '/rector-test-' . uniqid();
     }
 
     protected function tearDown(): void

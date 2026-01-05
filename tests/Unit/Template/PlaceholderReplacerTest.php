@@ -14,7 +14,7 @@ final class PlaceholderReplacerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->replacer = new PlaceholderReplacer;
+        $this->replacer = new PlaceholderReplacer();
     }
 
     #[Test]

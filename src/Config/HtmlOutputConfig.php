@@ -32,7 +32,7 @@ class HtmlOutputConfig
 
     public function getTemplatePath(): string
     {
-        return dirname(__DIR__, 2).'/templates/default/main.html';
+        return dirname(__DIR__, 2) . '/templates/default/main.html';
     }
 
     public function shouldAutoIncrementFilename(): bool
@@ -55,16 +55,16 @@ class HtmlOutputConfig
         }
 
         if (! is_dir($this->outputDirectory)) {
-            if (! mkdir($this->outputDirectory, 0755, true) && ! is_dir($this->outputDirectory)) {
+            if (! mkdir($this->outputDirectory, 0o755, true) && ! is_dir($this->outputDirectory)) {
                 throw new RuntimeException(
-                    sprintf('Failed to create output directory: %s', $this->outputDirectory)
+                    sprintf('Failed to create output directory: %s', $this->outputDirectory),
                 );
             }
         }
 
         if (! is_writable($this->outputDirectory)) {
             throw new RuntimeException(
-                sprintf('Output directory is not writable: %s', $this->outputDirectory)
+                sprintf('Output directory is not writable: %s', $this->outputDirectory),
             );
         }
     }

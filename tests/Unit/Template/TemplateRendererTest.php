@@ -17,25 +17,25 @@ final class TemplateRendererTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir().'/rector-renderer-test-'.uniqid();
+        $this->tempDir = sys_get_temp_dir() . '/rector-renderer-test-' . uniqid();
         mkdir($this->tempDir);
-        mkdir($this->tempDir.'/fragments');
+        mkdir($this->tempDir . '/fragments');
     }
 
     protected function tearDown(): void
     {
-        $files = glob($this->tempDir.'/fragments/*') ?: [];
+        $files = glob($this->tempDir . '/fragments/*') ?: [];
         array_map('unlink', $files);
 
-        $files = glob($this->tempDir.'/*') ?: [];
+        $files = glob($this->tempDir . '/*') ?: [];
         foreach ($files as $file) {
             if (is_file($file)) {
                 unlink($file);
             }
         }
 
-        if (is_dir($this->tempDir.'/fragments')) {
-            rmdir($this->tempDir.'/fragments');
+        if (is_dir($this->tempDir . '/fragments')) {
+            rmdir($this->tempDir . '/fragments');
         }
 
         if (is_dir($this->tempDir)) {
@@ -46,11 +46,11 @@ final class TemplateRendererTest extends TestCase
     #[Test]
     public function renderReplacesBasicPlaceholders(): void
     {
-        $templatePath = $this->tempDir.'/main.html';
+        $templatePath = $this->tempDir . '/main.html';
         file_put_contents($templatePath, '{{FILE_COUNT}} files, +{{TOTAL_ADDED}} -{{TOTAL_REMOVED}} at {{TIMESTAMP}}');
-        file_put_contents($this->tempDir.'/fragments/no-changes.html', '<p>No changes</p>');
+        file_put_contents($this->tempDir . '/fragments/no-changes.html', '<p>No changes</p>');
 
-        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer);
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
 
         $reportData = new ReportData(
             fileDiffs: [],
@@ -68,11 +68,11 @@ final class TemplateRendererTest extends TestCase
     #[Test]
     public function renderBuildsSidebarNavFromFileDiffs(): void
     {
-        $templatePath = $this->tempDir.'/main.html';
+        $templatePath = $this->tempDir . '/main.html';
         file_put_contents($templatePath, '{{SIDEBAR_NAV}}');
-        file_put_contents($this->tempDir.'/fragments/file-diff.html', '<div>{{FILENAME}}</div>');
+        file_put_contents($this->tempDir . '/fragments/file-diff.html', '<div>{{FILENAME}}</div>');
 
-        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer);
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
 
         $reportData = new ReportData(
             fileDiffs: [
@@ -93,14 +93,14 @@ final class TemplateRendererTest extends TestCase
     #[Test]
     public function renderBuildsFilesContentFromFileDiffs(): void
     {
-        $templatePath = $this->tempDir.'/main.html';
+        $templatePath = $this->tempDir . '/main.html';
         file_put_contents($templatePath, '{{FILES_CONTENT}}');
         file_put_contents(
-            $this->tempDir.'/fragments/file-diff.html',
-            '<div id="file-{{INDEX}}"><h2>{{FILENAME}}</h2><pre>{{DIFF_HTML}}</pre></div>'
+            $this->tempDir . '/fragments/file-diff.html',
+            '<div id="file-{{INDEX}}"><h2>{{FILENAME}}</h2><pre>{{DIFF_HTML}}</pre></div>',
         );
 
-        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer);
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
 
         $reportData = new ReportData(
             fileDiffs: [
@@ -120,11 +120,11 @@ final class TemplateRendererTest extends TestCase
     #[Test]
     public function renderShowsNoChangesFragmentWhenEmpty(): void
     {
-        $templatePath = $this->tempDir.'/main.html';
+        $templatePath = $this->tempDir . '/main.html';
         file_put_contents($templatePath, '{{FILES_CONTENT}}');
-        file_put_contents($this->tempDir.'/fragments/no-changes.html', '<div class="no-changes">All good!</div>');
+        file_put_contents($this->tempDir . '/fragments/no-changes.html', '<div class="no-changes">All good!</div>');
 
-        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer);
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
 
         $reportData = new ReportData(
             fileDiffs: [],
@@ -143,7 +143,7 @@ final class TemplateRendererTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to load template');
 
-        $renderer = new TemplateRenderer('/nonexistent/path.html', new PlaceholderReplacer);
+        $renderer = new TemplateRenderer('/nonexistent/path.html', new PlaceholderReplacer());
 
         $reportData = new ReportData(
             fileDiffs: [],
@@ -156,14 +156,14 @@ final class TemplateRendererTest extends TestCase
     #[Test]
     public function renderThrowsExceptionForMissingFragment(): void
     {
-        $templatePath = $this->tempDir.'/main.html';
+        $templatePath = $this->tempDir . '/main.html';
         file_put_contents($templatePath, '{{FILES_CONTENT}}');
         // Note: not creating the no-changes.html fragment
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Template fragment not found');
 
-        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer);
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
 
         $reportData = new ReportData(
             fileDiffs: [],
@@ -176,11 +176,11 @@ final class TemplateRendererTest extends TestCase
     #[Test]
     public function renderEscapesHtmlInFilenames(): void
     {
-        $templatePath = $this->tempDir.'/main.html';
+        $templatePath = $this->tempDir . '/main.html';
         file_put_contents($templatePath, '{{SIDEBAR_NAV}}');
-        file_put_contents($this->tempDir.'/fragments/file-diff.html', '<div>{{FILENAME}}</div>');
+        file_put_contents($this->tempDir . '/fragments/file-diff.html', '<div>{{FILENAME}}</div>');
 
-        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer);
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
 
         $reportData = new ReportData(
             fileDiffs: [
@@ -198,20 +198,20 @@ final class TemplateRendererTest extends TestCase
     #[Test]
     public function renderFormatsDiffWithLineNumbers(): void
     {
-        $templatePath = $this->tempDir.'/main.html';
+        $templatePath = $this->tempDir . '/main.html';
         file_put_contents($templatePath, '{{FILES_CONTENT}}');
-        file_put_contents($this->tempDir.'/fragments/file-diff.html', '{{DIFF_HTML}}');
+        file_put_contents($this->tempDir . '/fragments/file-diff.html', '{{DIFF_HTML}}');
 
-        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer);
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
 
         $diff = <<<'DIFF'
---- a/test.php
-+++ b/test.php
-@@ -10,3 +10,3 @@
- context line
--removed line
-+added line
-DIFF;
+            --- a/test.php
+            +++ b/test.php
+            @@ -10,3 +10,3 @@
+             context line
+            -removed line
+            +added line
+            DIFF;
 
         $reportData = new ReportData(
             fileDiffs: [
