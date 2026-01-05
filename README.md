@@ -2,6 +2,18 @@
 
 Beautiful, self-contained HTML output formatter for [Rector PHP](https://getrector.com/).
 
+---
+
+[![GitHub PHPUnit Action Status][icon-tests]][href-tests]
+[![GitHub PHPStan Action Status][icon-phpstantest]][href-phpstantest]
+[![GitHub PhpCsFixer Action Status][icon-style]][href-style]
+
+![License][icon-license]
+![PHP][icon-php]
+[![Latest Version on Packagist][icon-version]][href-version]
+
+---
+
 ## Features
 
 - **Beautiful HTML Reports** - Modern, responsive design with dark/light mode
@@ -142,3 +154,16 @@ Created by [Amit Gupta](https://amitgupta.in/)
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+
+[href-phpstantest]: https://github.com/coolamit/igeek-rector-html-output/actions/workflows/phpstan.yml
+[href-style]: https://github.com/coolamit/igeek-rector-html-output/actions/workflows/code-style.yml
+[href-tests]: https://github.com/coolamit/igeek-rector-html-output/actions/workflows/phpunit.yml
+[href-version]: https://packagist.org/packages/igeek/rector-html-output
+[icon-codestyle]: https://img.shields.io/github/actions/workflow/status/coolamit/igeek-rector-html-output/code-style.yml?branch=master&label=Code%20Style
+[icon-license]: https://img.shields.io/github/license/coolamit/igeek-rector-html-output?color=blue&label=License
+[icon-phpstantest]: https://img.shields.io/github/actions/workflow/status/coolamit/igeek-rector-html-output/phpstan.yml?branch=master&label=PHPStan
+[icon-php]: https://img.shields.io/packagist/php-v/igeek/rector-html-output?color=blue&label=PHP
+[icon-style]: https://img.shields.io/github/actions/workflow/status/coolamit/igeek-rector-html-output/code-style.yml?label=Code%20Style
+[icon-tests]: https://img.shields.io/github/actions/workflow/status/coolamit/igeek-rector-html-output/phpunit.yml?label=Tests
+[icon-version]: https://img.shields.io/packagist/v/igeek/rector-html-output.svg?label=Packagist
