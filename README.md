@@ -1,13 +1,18 @@
 # Rector HTML Output
 
-![License][icon-license]
-![PHP][icon-php]
-[![Latest Version on Packagist][icon-version]][href-version]
+Beautiful, self-contained HTML output formatter for [Rector PHP](https://getrector.com/).
+
+---
+
 [![GitHub PHPUnit Action Status][icon-tests]][href-tests]
 [![GitHub PHPStan Action Status][icon-phpstantest]][href-phpstantest]
 [![GitHub PhpCsFixer Action Status][icon-style]][href-style]
 
-Beautiful, self-contained HTML output formatter for [Rector PHP](https://getrector.com/).
+![License][icon-license]
+![PHP][icon-php]
+[![Latest Version on Packagist][icon-version]][href-version]
+
+---
 
 ## Features
 
