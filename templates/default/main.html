@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rector Analysis Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-tertiary: #f5f5f5;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-color: #e2e8f0;
+            --removed-bg: #fed7d7;
+            --removed-text: #742a2a;
+            --added-bg: #c6f6d5;
+            --added-text: #22543d;
+            --meta-bg: #edf2f7;
+            --meta-text: #4a5568;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #1a202c;
+            --text-primary: #dfdfdf;
+            --text-secondary: #a0aec0;
+            --border-color: #4a5568;
+            --removed-bg: #742a2a;
+            --removed-text: #cdcdcd;
+            --added-bg: #22543d;
+            --added-text: #ffffff;
+            --meta-bg: #2d3748;
+            --meta-text: #cbd5e0;
+            --shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-tertiary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: auto;
+            transition: background-color 0.3s, width 0.3s;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .sidebar .sidebar-header h3 {
+            margin: 0;
+            line-height: 32px;
+        }
+
+        .sidebar-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--border-color);
+        }
+
+        .toggle-chevron {
+            transition: transform 0.3s ease;
+            font-size: 14px;
+        }
+
+        .sidebar.collapsed {
+            width: 50px;
+        }
+
+        .sidebar.collapsed .sidebar-toggle .toggle-chevron {
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed h3,
+        .sidebar.collapsed .sidebar-nav {
+            display: none;
+        }
+
+        .sidebar h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.093rem;
+            word-spacing: 5px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            display: inline-block;
+            min-width: 100%;
+            margin-top: 12px;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-nav a:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--bg-primary);
+            padding: 30px 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background-color 0.3s;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--text-primary);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 8px 35px 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            width: 250px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            padding: 15px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .stat-added {
+            color: #22c55e;
+        }
+
+        .stat-removed {
+            color: #ef4444;
+        }
+
+        .timestamp {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .file {
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-primary);
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .file.hidden {
+            display: none;
+        }
+
+        .file-header {
+            background: var(--bg-secondary);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        .file-header:hover {
+            opacity: 0.9;
+        }
+
+        .file-header h2 {
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            flex: 1;
+        }
+
+        .toggle-icon {
+            color: var(--text-secondary);
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+
+        .file.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .diff {
+            display: grid;
+            grid-template-columns: 1fr;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .file.collapsed .diff {
+            display: none;
+        }
+
+        .diff > div {
+            padding: 2px 10px 2px 0;
+            white-space: pre;
+            display: flex;
+            min-width: fit-content;
+        }
+
+        .line-num {
+            display: inline-block;
+            width: 50px;
+            padding-right: 10px;
+            text-align: right;
+            color: var(--text-secondary);
+            user-select: none;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border-color);
+            margin-right: 10px;
+        }
+
+        .diff-header {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .diff-meta {
+            background: var(--meta-bg);
+            color: var(--meta-text);
+            font-weight: 600;
+        }
+
+        .diff-removed {
+            background: var(--removed-bg);
+            color: var(--removed-text);
+        }
+
+        .diff-added {
+            background: var(--added-bg);
+            color: var(--added-text);
+        }
+
+        .diff-context {
+            color: var(--text-primary);
+        }
+
+        .no-changes {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+                <span class="toggle-chevron">◀</span>
+            </button>
+            <h3>Files Changed</h3>
+        </div>
+        <ul class="sidebar-nav" id="sidebar-nav">
+            {{SIDEBAR_NAV}}
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="header-top">
+                <h1>Rector Analysis Report</h1>
+                <div class="controls">
+                    <div class="search-box">
+                        <input type="text" id="search" placeholder="Search files...">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <button class="btn" id="toggle-all">Collapse All</button>
+                    <button class="btn" id="dark-mode-toggle">🌙</button>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">Files:</span>
+                    <span class="stat-value">{{FILE_COUNT}}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Added:</span>
+                    <span class="stat-value stat-added">+{{TOTAL_ADDED}}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Removed:</span>
+                    <span class="stat-value stat-removed">-{{TOTAL_REMOVED}}</span>
+                </div>
+            </div>
+            <div class="timestamp">Generated: {{TIMESTAMP}}</div>
+        </div>
+
+        <div id="files-container">
+            {{FILES_CONTENT}}
+        </div>
+
+        <div class="no-results" id="no-results" style="display: none;">
+            <p>No files match your search.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+
+    // Check for saved preference, default to dark mode
+    if (localStorage.getItem('darkMode') !== 'false') {
+        body.classList.add('dark-mode');
+        darkModeToggle.textContent = '☀️';
+    }
+
+    darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        darkModeToggle.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('darkMode', isDark);
+    });
+
+    // Sidebar collapse toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+
+    // Check for saved preference
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+        sidebar.classList.add('collapsed');
+    }
+
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    });
+
+    // Collapse/Expand functionality
+    const files = document.querySelectorAll('.file');
+    const toggleAllBtn = document.getElementById('toggle-all');
+    let allCollapsed = false;
+
+    files.forEach(file => {
+        const header = file.querySelector('.file-header');
+        header.addEventListener('click', () => {
+            file.classList.toggle('collapsed');
+        });
+    });
+
+    toggleAllBtn.addEventListener('click', () => {
+        allCollapsed = !allCollapsed;
+        files.forEach(file => {
+            if (allCollapsed) {
+                file.classList.add('collapsed');
+            } else {
+                file.classList.remove('collapsed');
+            }
+        });
+        toggleAllBtn.textContent = allCollapsed ? 'Expand All' : 'Collapse All';
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('search');
+    const filesContainer = document.getElementById('files-container');
+    const noResults = document.getElementById('no-results');
+
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        let visibleCount = 0;
+
+        files.forEach(file => {
+            const filename = file.dataset.filename.toLowerCase();
+            if (filename.includes(query)) {
+                file.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                file.classList.add('hidden');
+            }
+        });
+
+        if (visibleCount === 0 && query !== '') {
+            noResults.style.display = 'block';
+            filesContainer.style.display = 'none';
+        } else {
+            noResults.style.display = 'none';
+            filesContainer.style.display = 'block';
+        }
+    });
+
+    // Smooth scroll for sidebar links with header offset
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) {
+                // Expand if collapsed
+                target.classList.remove('collapsed');
+
+                // Calculate header height dynamically
+                const header = document.querySelector('.header');
+                const headerHeight = header ? header.offsetHeight : 0;
+
+                // Add extra buffer for spacing (20px)
+                const offset = headerHeight + 20;
+
+                // Get target position
+                const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+
+                // Smooth scroll to calculated position
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
