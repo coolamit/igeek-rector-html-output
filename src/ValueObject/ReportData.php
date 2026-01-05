@@ -25,14 +25,14 @@ class ReportData
     {
         $this->calculateLineCountsIfNeeded();
 
-        return $this->cachedLinesAdded;
+        return $this->cachedLinesAdded ?? 0;
     }
 
     public function getTotalLinesRemoved(): int
     {
         $this->calculateLineCountsIfNeeded();
 
-        return $this->cachedLinesRemoved;
+        return $this->cachedLinesRemoved ?? 0;
     }
 
     public function hasChanges(): bool
