@@ -91,6 +91,7 @@ final class HtmlOutputFormatterTest extends TestCase
         $this->assertFileExists($expectedFile);
 
         $content = file_get_contents($expectedFile);
+        $this->assertIsString($content);
         $this->assertStringContainsString('<html>', $content);
         $this->assertStringContainsString('0 files', $content);
     }
@@ -107,6 +108,7 @@ final class HtmlOutputFormatterTest extends TestCase
         $formatter->report($processResult, $configuration);
         $output = ob_get_clean();
 
+        $this->assertIsString($output);
         $this->assertStringContainsString('No changes detected', $output);
         $this->assertFileDoesNotExist($this->tempDir . '/test-report.html');
     }
