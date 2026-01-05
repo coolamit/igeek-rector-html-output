@@ -21,42 +21,42 @@ final class HtmlOutputFormatterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir().'/rector-formatter-test-'.uniqid();
-        $this->templateDir = sys_get_temp_dir().'/rector-templates-'.uniqid();
+        $this->tempDir = sys_get_temp_dir() . '/rector-formatter-test-' . uniqid();
+        $this->templateDir = sys_get_temp_dir() . '/rector-templates-' . uniqid();
 
         mkdir($this->tempDir);
         mkdir($this->templateDir);
-        mkdir($this->templateDir.'/fragments');
+        mkdir($this->templateDir . '/fragments');
 
         // Create minimal test templates
         file_put_contents(
-            $this->templateDir.'/main.html',
-            '<html>{{FILE_COUNT}} files{{SIDEBAR_NAV}}{{FILES_CONTENT}}</html>'
+            $this->templateDir . '/main.html',
+            '<html>{{FILE_COUNT}} files{{SIDEBAR_NAV}}{{FILES_CONTENT}}</html>',
         );
         file_put_contents(
-            $this->templateDir.'/fragments/file-diff.html',
-            '<div>{{FILENAME}}</div>'
+            $this->templateDir . '/fragments/file-diff.html',
+            '<div>{{FILENAME}}</div>',
         );
         file_put_contents(
-            $this->templateDir.'/fragments/no-changes.html',
-            '<div>No changes</div>'
+            $this->templateDir . '/fragments/no-changes.html',
+            '<div>No changes</div>',
         );
     }
 
     protected function tearDown(): void
     {
         // Clean temp dir
-        array_map('unlink', glob($this->tempDir.'/*') ?: []);
+        array_map('unlink', glob($this->tempDir . '/*') ?: []);
         if (is_dir($this->tempDir)) {
             rmdir($this->tempDir);
         }
 
         // Clean template dir
-        array_map('unlink', glob($this->templateDir.'/fragments/*') ?: []);
-        if (is_dir($this->templateDir.'/fragments')) {
-            rmdir($this->templateDir.'/fragments');
+        array_map('unlink', glob($this->templateDir . '/fragments/*') ?: []);
+        if (is_dir($this->templateDir . '/fragments')) {
+            rmdir($this->templateDir . '/fragments');
         }
-        foreach (glob($this->templateDir.'/*') ?: [] as $file) {
+        foreach (glob($this->templateDir . '/*') ?: [] as $file) {
             if (is_file($file)) {
                 unlink($file);
             }
@@ -81,13 +81,13 @@ final class HtmlOutputFormatterTest extends TestCase
 
         // Use real instances - ProcessResult(systemErrors, fileDiffs, totalChanged)
         $processResult = new ProcessResult([], [], 0);
-        $configuration = new Configuration;
+        $configuration = new Configuration();
 
         ob_start();
         $formatter->report($processResult, $configuration);
         ob_end_clean();
 
-        $expectedFile = $this->tempDir.'/test-report.html';
+        $expectedFile = $this->tempDir . '/test-report.html';
         $this->assertFileExists($expectedFile);
 
         $content = file_get_contents($expectedFile);
@@ -101,14 +101,14 @@ final class HtmlOutputFormatterTest extends TestCase
         $formatter = $this->createFormatter(skipEmpty: true);
 
         $processResult = new ProcessResult([], [], 0);
-        $configuration = new Configuration;
+        $configuration = new Configuration();
 
         ob_start();
         $formatter->report($processResult, $configuration);
         $output = ob_get_clean();
 
         $this->assertStringContainsString('No changes detected', $output);
-        $this->assertFileDoesNotExist($this->tempDir.'/test-report.html');
+        $this->assertFileDoesNotExist($this->tempDir . '/test-report.html');
     }
 
     private function createFormatter(bool $skipEmpty = false): HtmlOutputFormatter
@@ -120,8 +120,8 @@ final class HtmlOutputFormatterTest extends TestCase
         );
 
         $templateRenderer = new TemplateRenderer(
-            $this->templateDir.'/main.html',
-            new PlaceholderReplacer
+            $this->templateDir . '/main.html',
+            new PlaceholderReplacer(),
         );
 
         return new HtmlOutputFormatter($templateRenderer, $config);

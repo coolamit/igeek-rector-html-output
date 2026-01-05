@@ -15,3 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-incrementing filenames
 - Zero external dependencies
 - Comprehensive test coverage
+
+## [1.0.1] - 2026-01-06
+
+### Added
+- PHP-CS_Fixer as dev dependency for code style consistency
+- Github Actions workflow for automated testing
+
+### Updated
+- Code style improvements across the codebase

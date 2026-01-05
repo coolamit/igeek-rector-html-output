@@ -32,17 +32,17 @@ function withHtmlOutput(
 ): void {
     $rectorConfig->singleton(
         HtmlOutputConfig::class,
-        static fn () => new HtmlOutputConfig($outputDirectory, $filename, $autoIncrement, $skipEmpty)
+        static fn() => new HtmlOutputConfig($outputDirectory, $filename, $autoIncrement, $skipEmpty),
     );
 
     $rectorConfig->singleton(PlaceholderReplacer::class);
 
     $rectorConfig->singleton(
         TemplateRenderer::class,
-        static fn ($container) => new TemplateRenderer(
+        static fn($container) => new TemplateRenderer(
             $container->make(HtmlOutputConfig::class)->getTemplatePath(),
-            $container->make(PlaceholderReplacer::class)
-        )
+            $container->make(PlaceholderReplacer::class),
+        ),
     );
 
     $rectorConfig->singleton(HtmlOutputFormatter::class);
