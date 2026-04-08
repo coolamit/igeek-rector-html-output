@@ -24,3 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Updated
 - Code style improvements across the codebase
+
+## [1.1.0] - 2026-04-08
+
+### Updated
+- Updated HTML templates:
+  1. Changed file block header to be not clickable and file path to be selectable.
+  2. Changed file block collapse/expand arrow icon to an inline SVG.
+  3. Added file path copy button to file block header to easily copy file path.
