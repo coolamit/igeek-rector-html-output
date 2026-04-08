@@ -1,7 +1,11 @@
 <div class='file' id='file-{{INDEX}}' data-filename='{{FILENAME}}'>
     <div class='file-header'>
         <h2>{{FILENAME}}</h2>
-        <span class="toggle-icon">▼</span>
+        <div class="file-header-actions">
+            <span class="copy-path" title="Copy file path"><svg width="16" height="16"><use href="#icon-copy"/></svg></span>
+            <span class="header-separator"></span>
+            <span class="toggle-icon" title="Toggle file diff"><svg width="22" height="22"><use href="#icon-toggle"/></svg></span>
+        </div>
     </div>
     <div class='diff'>{{DIFF_HTML}}</div>
 </div>
