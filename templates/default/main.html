@@ -297,13 +297,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
-            user-select: none;
             transition: background-color 0.2s;
         }
 
-        .file-header:hover {
-            opacity: 0.9;
+        .toggle-icon:hover {
+            color: var(--text-primary);
         }
 
         .file-header h2 {
@@ -314,10 +312,59 @@
             flex: 1;
         }
 
+        .file-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .header-separator {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+        }
+
+        .copy-path {
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .copy-path:hover {
+            color: var(--text-primary);
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .copy-notification.fade-out {
+            opacity: 0;
+        }
+
         .toggle-icon {
             color: var(--text-secondary);
-            font-size: 18px;
-            transition: transform 0.2s;
+            transition: transform 0.2s, color 0.2s;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
         }
 
         .file.collapsed .toggle-icon {
@@ -400,6 +447,15 @@
     </style>
 </head>
 <body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+    </symbol>
+    <symbol id="icon-toggle" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 16l-6-6h12z"/>
+    </symbol>
+</svg>
 <div class="layout">
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -492,9 +548,22 @@
     let allCollapsed = false;
 
     files.forEach(file => {
-        const header = file.querySelector('.file-header');
-        header.addEventListener('click', () => {
+        const toggleIcon = file.querySelector('.toggle-icon');
+        toggleIcon.addEventListener('click', () => {
             file.classList.toggle('collapsed');
+        });
+
+        const copyBtn = file.querySelector('.copy-path');
+        copyBtn.addEventListener('click', () => {
+            const filename = file.dataset.filename;
+            navigator.clipboard.writeText(filename).then(() => {
+                const notification = document.createElement('div');
+                notification.className = 'copy-notification';
+                notification.textContent = 'Copied file path to Clipboard';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.classList.add('fade-out'), 1700);
+                setTimeout(() => notification.remove(), 2000);
+            });
         });
     });
 
