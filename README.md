@@ -147,13 +147,23 @@ Reports include:
 
 MIT License - see [LICENSE](LICENSE) file
 
-## Credits
-
-Created by [Amit Gupta](https://amitgupta.in/)
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Screenshots
+
+### Default UI
+
+[<img src="/docs/images/screenshots/01.jpg" width="500">](/docs/images/screenshots/01.jpg)
+
+### Search by file name
+
+[<img src="/docs/images/screenshots/02.jpg" width="500">](/docs/images/screenshots/02.jpg)
+
+### Collapse/Expand one or more file diff blocks
+
+[<img src="/docs/images/screenshots/03.jpg" width="500">](/docs/images/screenshots/03.jpg)
 
 
 [href-phpstantest]: https://github.com/coolamit/igeek-rector-html-output/actions/workflows/phpstan.yml
