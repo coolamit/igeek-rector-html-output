@@ -31,7 +31,7 @@ final class HtmlOutputFormatterTest extends TestCase
         // Create minimal test templates
         file_put_contents(
             $this->templateDir . '/main.html',
-            '<html>{{FILE_COUNT}} files{{SIDEBAR_NAV}}{{FILES_CONTENT}}</html>',
+            '<html>{{FILE_COUNT}} files {{RUN_MODE}} {{RUN_MODE_CLASS}}{{SIDEBAR_NAV}}{{FILES_CONTENT}}</html>',
         );
         file_put_contents(
             $this->templateDir . '/fragments/file-diff.html',
@@ -111,6 +111,42 @@ final class HtmlOutputFormatterTest extends TestCase
         $this->assertIsString($output);
         $this->assertStringContainsString('No changes detected', $output);
         $this->assertFileDoesNotExist($this->tempDir . '/test-report.html');
+    }
+
+    #[Test]
+    public function reportContainsDryRunWhenDryRun(): void
+    {
+        $formatter = $this->createFormatter(skipEmpty: false);
+
+        $processResult = new ProcessResult([], [], 0);
+        $configuration = new Configuration(isDryRun: true);
+
+        ob_start();
+        $formatter->report($processResult, $configuration);
+        ob_end_clean();
+
+        $content = file_get_contents($this->tempDir . '/test-report.html');
+        $this->assertIsString($content);
+        $this->assertStringContainsString('Dry Run', $content);
+        $this->assertStringContainsString('run-mode-dry-run', $content);
+    }
+
+    #[Test]
+    public function reportContainsAppliedWhenNotDryRun(): void
+    {
+        $formatter = $this->createFormatter(skipEmpty: false);
+
+        $processResult = new ProcessResult([], [], 0);
+        $configuration = new Configuration();
+
+        ob_start();
+        $formatter->report($processResult, $configuration);
+        ob_end_clean();
+
+        $content = file_get_contents($this->tempDir . '/test-report.html');
+        $this->assertIsString($content);
+        $this->assertStringContainsString('Applied', $content);
+        $this->assertStringContainsString('run-mode-applied', $content);
     }
 
     private function createFormatter(bool $skipEmpty = false): HtmlOutputFormatter
