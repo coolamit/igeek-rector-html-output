@@ -87,6 +87,7 @@ class HtmlOutputFormatter implements OutputFormatterInterface
         return new ReportData(
             fileDiffs: $filesData,
             timestamp: date('Y-m-d H:i:s'),
+            isDryRun: $configuration->isDryRun(),
         );
     }
 

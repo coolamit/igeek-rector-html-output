@@ -22,13 +22,18 @@ class TemplateRenderer
         $template = $this->loadTemplate($this->templatePath);
 
         // Only placeholders that exist in the actual template
+        $tree = $this->buildTree($reportData->fileDiffs);
+        $sortedFileDiffs = $this->flattenTree($tree);
+
         $placeholders = [
             'FILE_COUNT' => count($reportData->fileDiffs),
             'TOTAL_ADDED' => $reportData->getTotalLinesAdded(),
             'TOTAL_REMOVED' => $reportData->getTotalLinesRemoved(),
             'TIMESTAMP' => $reportData->timestamp,
-            'SIDEBAR_NAV' => $this->buildSidebarNav($reportData->fileDiffs),
-            'FILES_CONTENT' => $this->buildFilesContent($reportData->fileDiffs),
+            'RUN_MODE' => $reportData->isDryRun ? 'Dry Run' : 'Applied',
+            'RUN_MODE_CLASS' => $reportData->isDryRun ? 'run-mode-dry-run' : 'run-mode-applied',
+            'SIDEBAR_NAV' => empty($tree) ? '<li class="empty-state">No files changed</li>' : $this->renderTree($tree),
+            'FILES_CONTENT' => $this->buildFilesContent($sortedFileDiffs),
         ];
 
         return $this->placeholderReplacer->replace($template, $placeholders);
@@ -36,23 +41,100 @@ class TemplateRenderer
 
     /**
      * @param  list<array{index: int, file: string, diff: string}>  $fileDiffs
+     * @return array<string, mixed>
      */
-    private function buildSidebarNav(array $fileDiffs): string
+    private function buildTree(array $fileDiffs): array
     {
-        if (empty($fileDiffs)) {
-            return '<li class="empty-state">No files changed</li>';
-        }
-
-        $html = '';
+        $tree = [];
 
         foreach ($fileDiffs as $fileData) {
-            $filename = htmlspecialchars($fileData['file'], ENT_QUOTES, 'UTF-8');
-            $shortName = basename($filename);
+            $parts = explode('/', $fileData['file']);
+            $current = &$tree;
+
+            for ($i = 0; $i < count($parts) - 1; $i++) {
+                $folder = $parts[$i];
+
+                if (! isset($current[$folder]) || ! is_array($current[$folder]) || isset($current[$folder]['__file'])) {
+                    $current[$folder] = [];
+                }
+
+                $current = &$current[$folder];
+            }
+
+            $fileName = end($parts);
+            $current[$fileName] = ['__file' => true, '__data' => $fileData];
+        }
+
+        return $tree;
+    }
+
+    /**
+     * @param  array<string, mixed>  $tree
+     * @return list<array{index: int, file: string, diff: string}>
+     */
+    private function flattenTree(array $tree): array
+    {
+        $result = [];
+
+        $folders = [];
+        $files = [];
+
+        foreach ($tree as $name => $node) {
+            if (is_array($node) && ! isset($node['__file'])) {
+                $folders[$name] = $node;
+            } else {
+                $files[$name] = $node;
+            }
+        }
+
+        foreach ($folders as $children) {
+            $result = array_merge($result, $this->flattenTree($children));
+        }
+
+        foreach ($files as $node) {
+            $result[] = $node['__data'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param  array<string, mixed>  $tree
+     */
+    private function renderTree(array $tree): string
+    {
+        $html = '';
+
+        // Separate folders and files, render folders first
+        $folders = [];
+        $files = [];
+
+        foreach ($tree as $name => $node) {
+            if (is_array($node) && ! isset($node['__file'])) {
+                $folders[$name] = $node;
+            } else {
+                $files[$name] = $node;
+            }
+        }
+
+        foreach ($folders as $folderName => $children) {
+            $escapedName = htmlspecialchars((string) $folderName, ENT_QUOTES, 'UTF-8');
             $html .= sprintf(
-                '<li><a href="#file-%s" title="%s">%s</a></li>',
+                '<li class="tree-folder"><span class="folder-name"><svg class="folder-arrow" width="14" height="14"><use href="#icon-toggle"/></svg> %s</span><ul>%s</ul></li>',
+                $escapedName,
+                $this->renderTree($children),
+            );
+        }
+
+        foreach ($files as $node) {
+            $fileData = $node['__data'];
+            $filename = htmlspecialchars($fileData['file'], ENT_QUOTES, 'UTF-8');
+            $shortName = htmlspecialchars(basename($fileData['file']), ENT_QUOTES, 'UTF-8');
+            $html .= sprintf(
+                '<li class="tree-file"><a href="#file-%s" title="%s"><svg class="file-icon" width="14" height="14"><use href="#icon-file"/></svg> %s</a></li>',
                 $fileData['index'],
                 $filename,
-                htmlspecialchars($shortName, ENT_QUOTES, 'UTF-8'),
+                $shortName,
             );
         }
 

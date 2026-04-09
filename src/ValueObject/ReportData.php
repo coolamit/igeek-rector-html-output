@@ -19,6 +19,7 @@ class ReportData
     public function __construct(
         public readonly array $fileDiffs,
         public readonly string $timestamp,
+        public readonly bool $isDryRun = false,
     ) {}
 
     public function getTotalLinesAdded(): int
