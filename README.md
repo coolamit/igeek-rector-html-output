@@ -155,15 +155,15 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Default UI
 
-[<img src="/docs/images/screenshots/01.jpg" width="500">](/docs/images/screenshots/01.jpg)
+[<img src="/docs/images/screenshots/01.jpg">](/docs/images/screenshots/01.jpg)
 
 ### Search by file name
 
-[<img src="/docs/images/screenshots/02.jpg" width="500">](/docs/images/screenshots/02.jpg)
+[<img src="/docs/images/screenshots/02.jpg">](/docs/images/screenshots/02.jpg)
 
 ### Collapse/Expand one or more file diff blocks
 
-[<img src="/docs/images/screenshots/03.jpg" width="500">](/docs/images/screenshots/03.jpg)
+[<img src="/docs/images/screenshots/03.jpg">](/docs/images/screenshots/03.jpg)
 
 
 [href-phpstantest]: https://github.com/coolamit/igeek-rector-html-output/actions/workflows/phpstan.yml
