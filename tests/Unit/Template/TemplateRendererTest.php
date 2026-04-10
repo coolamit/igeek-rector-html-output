@@ -88,6 +88,9 @@ final class TemplateRendererTest extends TestCase
         $this->assertStringContainsString('href="#file-1"', $result);
         $this->assertStringContainsString('User.php', $result);
         $this->assertStringContainsString('HomeController.php', $result);
+        $this->assertStringContainsString('tree-folder', $result);
+        $this->assertStringContainsString('tree-file', $result);
+        $this->assertStringContainsString('folder-name', $result);
     }
 
     #[Test]
@@ -228,5 +231,128 @@ final class TemplateRendererTest extends TestCase
         $this->assertStringContainsString('diff-removed', $result);
         $this->assertStringContainsString('diff-added', $result);
         $this->assertStringContainsString('line-num', $result);
+    }
+
+    #[Test]
+    public function renderOutputsDryRunMode(): void
+    {
+        $templatePath = $this->tempDir . '/main.html';
+        file_put_contents($templatePath, '{{RUN_MODE}} {{RUN_MODE_CLASS}}');
+        file_put_contents($this->tempDir . '/fragments/no-changes.html', '');
+
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
+
+        $reportData = new ReportData(
+            fileDiffs: [],
+            timestamp: '2025-01-01 12:00:00',
+            isDryRun: true,
+        );
+
+        $result = $renderer->render($reportData);
+
+        $this->assertStringContainsString('Dry Run', $result);
+        $this->assertStringContainsString('run-mode-dry-run', $result);
+    }
+
+    #[Test]
+    public function renderOutputsAppliedMode(): void
+    {
+        $templatePath = $this->tempDir . '/main.html';
+        file_put_contents($templatePath, '{{RUN_MODE}} {{RUN_MODE_CLASS}}');
+        file_put_contents($this->tempDir . '/fragments/no-changes.html', '');
+
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
+
+        $reportData = new ReportData(
+            fileDiffs: [],
+            timestamp: '2025-01-01 12:00:00',
+            isDryRun: false,
+        );
+
+        $result = $renderer->render($reportData);
+
+        $this->assertStringContainsString('Applied', $result);
+        $this->assertStringContainsString('run-mode-applied', $result);
+    }
+
+    #[Test]
+    public function renderBuildsFolderTreeInSidebar(): void
+    {
+        $templatePath = $this->tempDir . '/main.html';
+        file_put_contents($templatePath, '{{SIDEBAR_NAV}}');
+        file_put_contents($this->tempDir . '/fragments/file-diff.html', '<div>{{FILENAME}}</div>');
+
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
+
+        $reportData = new ReportData(
+            fileDiffs: [
+                ['index' => 0, 'file' => 'app/Models/User.php', 'diff' => '+line'],
+                ['index' => 1, 'file' => 'config/app.php', 'diff' => '+line'],
+            ],
+            timestamp: '2025-01-01 12:00:00',
+        );
+
+        $result = $renderer->render($reportData);
+
+        // Folders should be rendered as tree-folder with folder-name spans
+        $this->assertStringContainsString('class="tree-folder"', $result);
+        $this->assertStringContainsString('class="folder-name"', $result);
+        // Files should be rendered as tree-file
+        $this->assertStringContainsString('class="tree-file"', $result);
+        // Folder names should appear
+        $this->assertStringContainsString('app', $result);
+        $this->assertStringContainsString('Models', $result);
+        $this->assertStringContainsString('config', $result);
+    }
+
+    #[Test]
+    public function renderSortsFilesContentToMatchSidebarOrder(): void
+    {
+        $templatePath = $this->tempDir . '/main.html';
+        file_put_contents($templatePath, '{{FILES_CONTENT}}');
+        file_put_contents(
+            $this->tempDir . '/fragments/file-diff.html',
+            '<section>{{FILENAME}}</section>',
+        );
+
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
+
+        // rootfile.php given first, but folders should be output before root-level files
+        $reportData = new ReportData(
+            fileDiffs: [
+                ['index' => 0, 'file' => 'rootfile.php', 'diff' => '+line'],
+                ['index' => 1, 'file' => 'app/Models/User.php', 'diff' => '+line'],
+            ],
+            timestamp: '2025-01-01 12:00:00',
+        );
+
+        $result = $renderer->render($reportData);
+
+        // Tree order: app/ folder contents first, then root-level files
+        $posApp = strpos($result, 'app/Models/User.php');
+        $posRoot = strpos($result, 'rootfile.php');
+
+        $this->assertNotFalse($posApp);
+        $this->assertNotFalse($posRoot);
+        $this->assertLessThan($posRoot, $posApp, 'Files inside folders should come before root-level files');
+    }
+
+    #[Test]
+    public function renderShowsEmptyStateWhenNoFiles(): void
+    {
+        $templatePath = $this->tempDir . '/main.html';
+        file_put_contents($templatePath, '{{SIDEBAR_NAV}}');
+        file_put_contents($this->tempDir . '/fragments/no-changes.html', '');
+
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
+
+        $reportData = new ReportData(
+            fileDiffs: [],
+            timestamp: '2025-01-01 12:00:00',
+        );
+
+        $result = $renderer->render($reportData);
+
+        $this->assertStringContainsString('No files changed', $result);
     }
 }

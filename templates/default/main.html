@@ -25,6 +25,10 @@
             --meta-bg: #edf2f7;
             --meta-text: #4a5568;
             --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --badge-dry-run-bg: #fef3c7;
+            --badge-dry-run-text: #92400e;
+            --badge-applied-bg: #d1fae5;
+            --badge-applied-text: #065f46;
         }
 
         body.dark-mode {
@@ -41,6 +45,10 @@
             --meta-bg: #2d3748;
             --meta-text: #cbd5e0;
             --shadow: 0 2px 4px rgba(0,0,0,0.3);
+            --badge-dry-run-bg: #78350f;
+            --badge-dry-run-text: #fef3c7;
+            --badge-applied-bg: #065f46;
+            --badge-applied-text: #d1fae5;
         }
 
         body {
@@ -157,6 +165,55 @@
             color: var(--text-primary);
         }
 
+        .tree-folder > ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .folder-name {
+            display: block;
+            padding: 6px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Monaco', 'Menlo', monospace;
+            cursor: pointer;
+            border-radius: 4px;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+
+        .folder-name:hover {
+            background: var(--bg-secondary);
+        }
+
+        .folder-arrow {
+            display: inline-block;
+            vertical-align: middle;
+            transition: transform 0.2s;
+        }
+
+        .tree-folder.collapsed > ul {
+            display: none;
+        }
+
+        .tree-folder.collapsed > .folder-name .folder-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .tree-folder > .folder-name .folder-arrow {
+            transform: rotate(0deg);
+        }
+
+        .tree-file {
+            margin-bottom: 4px;
+        }
+
+        .file-icon {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
         .main-content {
             flex: 1;
             min-width: 0;
@@ -185,6 +242,25 @@
             color: var(--text-primary);
             font-size: 28px;
             font-weight: 700;
+        }
+
+        .run-mode-badge {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+            vertical-align: middle;
+            margin-left: 12px;
+        }
+
+        .run-mode-dry-run {
+            background: var(--badge-dry-run-bg);
+            color: var(--badge-dry-run-text);
+        }
+
+        .run-mode-applied {
+            background: var(--badge-applied-bg);
+            color: var(--badge-applied-text);
         }
 
         .controls {
@@ -272,6 +348,22 @@
             color: var(--text-secondary);
             font-size: 13px;
             margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .package-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: monospace;
+            border-bottom: 1px solid;
+            padding-bottom: 3px;
+            transition: color 0.2s;
+        }
+
+        .package-link:hover {
+            color: var(--text-primary);
         }
 
         .file {
@@ -455,6 +547,10 @@
     <symbol id="icon-toggle" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 16l-6-6h12z"/>
     </symbol>
+    <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+    </symbol>
 </svg>
 <div class="layout">
     <aside class="sidebar" id="sidebar">
@@ -472,7 +568,7 @@
     <div class="main-content">
         <div class="header">
             <div class="header-top">
-                <h1>Rector Analysis Report</h1>
+                <h1>Rector Analysis Report <span class="run-mode-badge {{RUN_MODE_CLASS}}">{{RUN_MODE}}</span></h1>
                 <div class="controls">
                     <div class="search-box">
                         <input type="text" id="search" placeholder="Search files...">
@@ -496,7 +592,10 @@
                     <span class="stat-value stat-removed">-{{TOTAL_REMOVED}}</span>
                 </div>
             </div>
-            <div class="timestamp">Generated: {{TIMESTAMP}}</div>
+            <div class="timestamp">
+                <span>Generated: {{TIMESTAMP}}</span>
+                <span>Generated via <a href="https://github.com/coolamit/igeek-rector-html-output" target="_blank" class="package-link">igeek/rector-html-output</a></span>
+            </div>
         </div>
 
         <div id="files-container">
@@ -605,6 +704,13 @@
             noResults.style.display = 'none';
             filesContainer.style.display = 'block';
         }
+    });
+
+    // Folder tree toggle
+    document.querySelectorAll('.folder-name').forEach(folder => {
+        folder.addEventListener('click', () => {
+            folder.parentElement.classList.toggle('collapsed');
+        });
     });
 
     // Smooth scroll for sidebar links with header offset

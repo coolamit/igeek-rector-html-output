@@ -84,6 +84,29 @@ final class ReportDataTest extends TestCase
     }
 
     #[Test]
+    public function isDryRunDefaultsToFalse(): void
+    {
+        $reportData = new ReportData(
+            fileDiffs: [],
+            timestamp: '2025-01-01 12:00:00',
+        );
+
+        $this->assertFalse($reportData->isDryRun);
+    }
+
+    #[Test]
+    public function isDryRunReturnsTrueWhenSet(): void
+    {
+        $reportData = new ReportData(
+            fileDiffs: [],
+            timestamp: '2025-01-01 12:00:00',
+            isDryRun: true,
+        );
+
+        $this->assertTrue($reportData->isDryRun);
+    }
+
+    #[Test]
     public function ignoresDiffHeadersWhenCountingLines(): void
     {
         $reportData = new ReportData(
