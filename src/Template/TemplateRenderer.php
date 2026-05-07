@@ -87,6 +87,9 @@ class TemplateRenderer
             }
         }
 
+        ksort($folders);
+        ksort($files);
+
         foreach ($folders as $children) {
             $result = array_merge($result, $this->flattenTree($children));
         }
@@ -116,6 +119,9 @@ class TemplateRenderer
                 $files[$name] = $node;
             }
         }
+
+        ksort($folders);
+        ksort($files);
 
         foreach ($folders as $folderName => $children) {
             $escapedName = htmlspecialchars((string) $folderName, ENT_QUOTES, 'UTF-8');
