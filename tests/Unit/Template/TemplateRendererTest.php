@@ -338,6 +338,77 @@ final class TemplateRendererTest extends TestCase
     }
 
     #[Test]
+    public function renderSortsFoldersAndFilesAlphabetically(): void
+    {
+        $templatePath = $this->tempDir . '/main.html';
+        file_put_contents($templatePath, '{{SIDEBAR_NAV}}{{FILES_CONTENT}}');
+        file_put_contents(
+            $this->tempDir . '/fragments/file-diff.html',
+            '<section>{{FILENAME}}</section>',
+        );
+
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
+
+        // Input order is intentionally non-alphabetical
+        $reportData = new ReportData(
+            fileDiffs: [
+                ['index' => 0, 'file' => 'app/Providers/AppServiceProvider.php', 'diff' => '+line'],
+                ['index' => 1, 'file' => 'app/Models/User.php', 'diff' => '+line'],
+                ['index' => 2, 'file' => 'app/Concerns/FooBarable.php', 'diff' => '+line'],
+                ['index' => 3, 'file' => 'app/Http/Controllers/ListItemsController.php', 'diff' => '+line'],
+            ],
+            timestamp: '2025-01-01 12:00:00',
+        );
+
+        $result = $renderer->render($reportData);
+
+        // Sub-folders under app/ should appear in alphabetical order: Concerns, Http, Models, Providers
+        $posConcerns = strpos($result, 'FooBarable.php');
+        $posHttp = strpos($result, 'ListItemsController.php');
+        $posModels = strpos($result, 'User.php');
+        $posProviders = strpos($result, 'AppServiceProvider.php');
+
+        $this->assertNotFalse($posConcerns);
+        $this->assertNotFalse($posHttp);
+        $this->assertNotFalse($posModels);
+        $this->assertNotFalse($posProviders);
+        $this->assertLessThan($posHttp, $posConcerns, 'Concerns should come before Http (alphabetical)');
+        $this->assertLessThan($posModels, $posHttp, 'Http should come before Models (alphabetical)');
+        $this->assertLessThan($posProviders, $posModels, 'Models should come before Providers (alphabetical)');
+    }
+
+    #[Test]
+    public function renderSortsFilesAlphabeticallyWithinSameFolder(): void
+    {
+        $templatePath = $this->tempDir . '/main.html';
+        file_put_contents($templatePath, '{{FILES_CONTENT}}');
+        file_put_contents(
+            $this->tempDir . '/fragments/file-diff.html',
+            '<section>{{FILENAME}}</section>',
+        );
+
+        $renderer = new TemplateRenderer($templatePath, new PlaceholderReplacer());
+
+        // Files in non-alphabetical input order, all in same folder
+        $reportData = new ReportData(
+            fileDiffs: [
+                ['index' => 0, 'file' => 'app/Providers/FortifyServiceProvider.php', 'diff' => '+line'],
+                ['index' => 1, 'file' => 'app/Providers/AppServiceProvider.php', 'diff' => '+line'],
+            ],
+            timestamp: '2025-01-01 12:00:00',
+        );
+
+        $result = $renderer->render($reportData);
+
+        $posApp = strpos($result, 'AppServiceProvider.php');
+        $posFortify = strpos($result, 'FortifyServiceProvider.php');
+
+        $this->assertNotFalse($posApp);
+        $this->assertNotFalse($posFortify);
+        $this->assertLessThan($posFortify, $posApp, 'AppServiceProvider should come before FortifyServiceProvider (alphabetical)');
+    }
+
+    #[Test]
     public function renderShowsEmptyStateWhenNoFiles(): void
     {
         $templatePath = $this->tempDir . '/main.html';
